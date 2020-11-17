@@ -5,7 +5,7 @@ import random
 import datetime
 
 
-kinesis = boto3.client('kinesis', )
+kinesis = boto3.client('kinesis')
 
 
 def getReferrer():
@@ -21,10 +21,6 @@ def getReferrer():
 
 data = json.dumps(getReferrer())
 print(data)
-
-kinesis.put_record(
-                StreamName="ExampleInputStream",
-                Data=data)
 
 kinesis.put_record(
                 StreamName="ExampleInputStream",
