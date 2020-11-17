@@ -1,4 +1,13 @@
-Step 1: Setup a KDF and send dummy data to it from with a python SDK and a script every 3 seconds
+Step 1: Create a kinesis fh with a cloud formation template using the AWS CLI
+
+aws cloudformation create-stack --stack-name raz_myteststack --template-body cloudformation-kinesis-fh-delivery-stream.json
+
+
+Step 2: Setup a KDF and send dummy data to it from with a python SDK and a script every 3 seconds
+
+
+Prerequisits
+https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-windows.html#cliv2-windows-install
 
 
 
