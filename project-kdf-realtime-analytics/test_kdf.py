@@ -3,6 +3,7 @@ import json
 import boto3
 import random
 import datetime
+import time
 
 
 kinesis = boto3.client('kinesis')
@@ -19,11 +20,14 @@ def getReferrer():
     return data
 
 
-data = json.dumps(getReferrer())
-print(data)
 
-kinesis.put_record(
-                StreamName="ExampleInputStream",
+
+while 1:
+    data = json.dumps(getReferrer())+"\n"
+    print(data)
+    time.sleep(3)
+    kinesis.put_record(
+                StreamName="raz-test-kinesis-fh-newdev",
                 Data=data,
-                PartitionKey="partitionkey")
+                PartitionKey="partitionkey-NEW1")
  

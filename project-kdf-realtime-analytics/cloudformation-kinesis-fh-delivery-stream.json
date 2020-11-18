@@ -13,7 +13,7 @@
     "KinesisStream": {
         "Type" : "AWS::Kinesis::Stream",
         "Properties" : {
-          "Name" : {"Fn::Join" : [ "", [ "raz-test-kinesis-fh-", {"Ref": "Environment"} ] ]},
+          "Name" : {"Fn::Join" : [ "", [ "raz-test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
           "RetentionPeriodHours" : 24,
           "ShardCount" : 8,
           "Tags" : [
@@ -26,23 +26,23 @@
     "KinesisFirehoseDeliveryStream": {
         "Type": "AWS::KinesisFirehose::DeliveryStream",
         "Properties": {
-          "DeliveryStreamName": {"Fn::Join" : [ "", [ "test-kinesis-fh-", {"Ref": "Environment"} ] ]},
+          "DeliveryStreamName": {"Fn::Join" : [ "", [ "test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
           "DeliveryStreamType": "KinesisStreamAsSource",
           "KinesisStreamSourceConfiguration": {
             "KinesisStreamARN": {"Fn::GetAtt" : ["KinesisStream", "Arn"] },
             "RoleARN": {"Fn::GetAtt": ["FirehoseDeliveryIAMRole", "Arn"]}
           },
           "S3DestinationConfiguration": {
-            "BucketARN": "arn:aws:s3:::raz-test-bucket-name",
-            "Prefix": "cloudformation-test/kinesis-fh",
+            "BucketARN": "arn:aws:s3:::raz-eu-central-1-tutorial",
+            "Prefix": "kinesis-fh-new/",
             "BufferingHints": {
-              "IntervalInSeconds": 60,
+              "IntervalInSeconds": 10,
               "SizeInMBs": 100
             },
             "CloudWatchLoggingOptions" : {
               "Enabled" : "false"
             },
-            "CompressionFormat"        : "GZIP",
+            "CompressionFormat"        : "Disabled",
             "EncryptionConfiguration"  : {
               "NoEncryptionConfig" : "NoEncryption"
             },
@@ -91,7 +91,7 @@
                   "s3:PutObject"
                 ],
                 "Resource": [
-                  "arn:aws:s3:::raz-test-bucket-name/cloudformation-test/kinesis-fh*"
+                  "arn:aws:s3:::raz-eu-central-1-tutorial/kinesis-fh-new*"
                 ]
               },
               {
