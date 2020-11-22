@@ -1,0 +1,123 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "The AWS CloudFormation template for Kinesis Stream",
+      "Parameters": {
+          "Environment": {
+              "Description": "dev, stage, or prod - this is for bucket tags",
+              "Type": "String",
+              "MinLength": "3",
+              "MaxLength": "5"
+          }
+     },
+    "Resources": {
+      "KinesisStream": {
+          "Type" : "AWS::Kinesis::Stream",
+          "Properties" : {
+            "Name" : {"Fn::Join" : [ "", [ "raz-test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
+            "RetentionPeriodHours" : 24,
+            "ShardCount" : 8,
+            "Tags" : [
+              {"Key": "Environment", "Value": {"Ref": "Environment"}},
+              {"Key": "Project", "Value": "Test Kinesis"},
+              {"Key": "Owner", "Value": "liz"}
+            ]
+          }
+      },
+      "KinesisFirehoseDeliveryStream": {
+          "Type": "AWS::KinesisFirehose::DeliveryStream",
+          "Properties": {
+            "DeliveryStreamName": {"Fn::Join" : [ "", [ "test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
+            "DeliveryStreamType": "KinesisStreamAsSource",
+            "KinesisStreamSourceConfiguration": {
+              "KinesisStreamARN": {"Fn::GetAtt" : ["KinesisStream", "Arn"] },
+              "RoleARN": {"Fn::GetAtt": ["FirehoseDeliveryIAMRole", "Arn"]}
+            },
+            "S3DestinationConfiguration": {
+              "BucketARN": "arn:aws:s3:::raz-eu-central-1-tutorial",
+              "Prefix": "kinesis-fh-new/",
+              "BufferingHints": {
+                "IntervalInSeconds": 10,
+                "SizeInMBs": 100
+              },
+              "CloudWatchLoggingOptions" : {
+                "Enabled" : "false"
+              },
+              "CompressionFormat"        : "Disabled",
+              "EncryptionConfiguration"  : {
+                "NoEncryptionConfig" : "NoEncryption"
+              },
+              "RoleARN": {"Fn::GetAtt": ["FirehoseDeliveryIAMRole", "Arn"]}
+            }
+          },
+          "DependsOn": ["FirehoseDeliveryIAMPolicy"]
+        },
+        "FirehoseDeliveryIAMRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "",
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": "firehose.amazonaws.com"
+                  },
+                  "Action": "sts:AssumeRole",
+                  "Condition": {
+                    "StringEquals": {
+                      "sts:ExternalId": "773208840593"
+                    }
+                  }
+                }]
+            }
+          }
+        },
+        "FirehoseDeliveryIAMPolicy": {
+          "Type": "AWS::IAM::Policy",
+          "Properties": {
+            "PolicyName": {"Fn::Join" : [ "", [ "test-kinesis-fh-", {"Ref": "Environment"} ] ]},
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:AbortMultipartUpload",
+                    "s3:GetBucketLocation",
+                    "s3:GetObject",
+                    "s3:ListBucket",
+                    "s3:ListBucketMultipartUploads",
+                    "s3:PutObject"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::raz-eu-central-1-tutorial/kinesis-fh-new*"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                      "kinesis:DescribeStream",
+                      "kinesis:GetShardIterator",
+                      "kinesis:GetRecords"
+                  ],
+                  "Resource": {"Fn::GetAtt": ["KinesisStream", "Arn"]}
+              }]
+            },
+            "Roles": [{"Ref": "FirehoseDeliveryIAMRole"}]
+          },
+          "DependsOn": ["KinesisStream"]
+        }
+      },
+      "Outputs": {
+        "kinesisStreamArn": {
+          "Description": "Kinesis Stream ARN",
+          "Value": {"Fn::GetAtt": ["KinesisStream", "Arn"]}},
+        "firehoseDeliveryStreamArn": {
+          "Description": "Firehose Delivery Stream ARN",
+          "Value": {"Fn::GetAtt": ["KinesisFirehoseDeliveryStream", "Arn"]}},
+        "firehoseDeliveryRoleArn": {
+          "Description": "Firehose Delivery Role ARN",
+          "Value": {"Fn::GetAtt": ["FirehoseDeliveryIAMRole", "Arn"]}}
+      }
+  }
