@@ -36,7 +36,7 @@
               "BucketARN": "arn:aws:s3:::raz-eu-central-1-tutorial",
               "Prefix": "kinesis-fh-iot/",
               "BufferingHints": {
-                "IntervalInSeconds": 10,
+                "IntervalInSeconds": 60,
                 "SizeInMBs": 100
               },
               "CloudWatchLoggingOptions" : {
