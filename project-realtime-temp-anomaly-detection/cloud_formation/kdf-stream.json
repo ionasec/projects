@@ -13,7 +13,7 @@
       "KinesisStream": {
           "Type" : "AWS::Kinesis::Stream",
           "Properties" : {
-            "Name" : {"Fn::Join" : [ "", [ "raz-test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
+            "Name" : {"Fn::Join" : [ "", [ "raz-iot-kinesis-fh-", {"Ref": "Environment"} ] ]},
             "RetentionPeriodHours" : 24,
             "ShardCount" : 8,
             "Tags" : [
@@ -26,7 +26,7 @@
       "KinesisFirehoseDeliveryStream": {
           "Type": "AWS::KinesisFirehose::DeliveryStream",
           "Properties": {
-            "DeliveryStreamName": {"Fn::Join" : [ "", [ "test-kinesis-fh-new", {"Ref": "Environment"} ] ]},
+            "DeliveryStreamName": {"Fn::Join" : [ "", [ "raz-iot-kinesis-fh-deliverystream-", {"Ref": "Environment"} ] ]},
             "DeliveryStreamType": "KinesisStreamAsSource",
             "KinesisStreamSourceConfiguration": {
               "KinesisStreamARN": {"Fn::GetAtt" : ["KinesisStream", "Arn"] },
@@ -34,7 +34,7 @@
             },
             "S3DestinationConfiguration": {
               "BucketARN": "arn:aws:s3:::raz-eu-central-1-tutorial",
-              "Prefix": "kinesis-fh-new/",
+              "Prefix": "kinesis-fh-iot/",
               "BufferingHints": {
                 "IntervalInSeconds": 10,
                 "SizeInMBs": 100
@@ -42,7 +42,7 @@
               "CloudWatchLoggingOptions" : {
                 "Enabled" : "false"
               },
-              "CompressionFormat"        : "Disabled",
+              "CompressionFormat"        : "UNCOMPRESSED",
               "EncryptionConfiguration"  : {
                 "NoEncryptionConfig" : "NoEncryption"
               },
@@ -76,7 +76,7 @@
         "FirehoseDeliveryIAMPolicy": {
           "Type": "AWS::IAM::Policy",
           "Properties": {
-            "PolicyName": {"Fn::Join" : [ "", [ "test-kinesis-fh-", {"Ref": "Environment"} ] ]},
+            "PolicyName": {"Fn::Join" : [ "", [ "raz-iot-kinesis-fh-policy-", {"Ref": "Environment"} ] ]},
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [
@@ -91,7 +91,7 @@
                     "s3:PutObject"
                   ],
                   "Resource": [
-                    "arn:aws:s3:::raz-eu-central-1-tutorial/kinesis-fh-new*"
+                    "arn:aws:s3:::raz-eu-central-1-tutorial/kinesis-fh-iot*"
                   ]
                 },
                 {

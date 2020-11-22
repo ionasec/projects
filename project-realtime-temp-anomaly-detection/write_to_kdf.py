@@ -5,11 +5,14 @@ import random
 import datetime
 import time
 
+DELIVERY_STEAM = "raz-iot-kinesis-fh-deliverystream-dev"
+PARTION_KEY = "partitionkey-iot-1"
+TIMEOUT = 1
 
 kinesis = boto3.client('kinesis')
 
 
-def getReferrer():
+def getData():
     data = {}
     now = datetime.datetime.now()
     str_now = now.isoformat()
@@ -23,11 +26,11 @@ def getReferrer():
 
 
 while 1:
-    data = json.dumps(getReferrer())+"\n"
+    data = json.dumps(getData())+"\n"
     print(data)
-    time.sleep(3)
+    time.sleep(TIMEOUT)
     kinesis.put_record(
-                StreamName="raz-test-kinesis-fh-newdev",
+                StreamName=DELIVERY_STEAM,
                 Data=data,
-                PartitionKey="partitionkey-NEW1")
+                PartitionKey=PARTION_KEY)
  
